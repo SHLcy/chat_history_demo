@@ -63,7 +63,6 @@
             line-height: 1.5;
         }
 
-        /* 修改 question 的样式使其显示在右边 */
         .question {
             background-color: #007bff;
             color: #fff;
@@ -73,7 +72,6 @@
             float: right
         }
 
-        /* 修改 answer 的样式使其显示在左边 */
         .answer {
             background-color: #e0e0e0;
             text-align: left;
@@ -86,11 +84,17 @@
             word-wrap: break-word;
         }
 
+        .message-time {
+            font-size: 12px;
+            color: #888;
+            text-align: right;
+            margin-top: 5px;
+        }
+
         #chat-display {
             padding-top: 20px;
         }
 
-        /* 简化输入框和按钮样式 */
         button {
             font-size: 16px;
             padding: 10px;
@@ -111,15 +115,11 @@
 
     <h1>聊天记录展示</h1>
 
-    <!-- 文件上传 -->
     <input type="file" id="file-upload" accept="application/json">
-    
-    <!-- SN 选择 -->
     <select id="sn-select">
         <option value="">选择一个 SN</option>
     </select>
 
-    <!-- 聊天记录显示区域 -->
     <div id="chat-display" class="chat-container"></div>
 
     <script>
@@ -175,14 +175,21 @@
             const messages = chatData[sn];
             if (messages) {
                 messages.forEach(msg => {
-                    const parent =  document.createElement('div');
+                    const parent = document.createElement('div');
+                    parent.style.overflow = 'hidden'
                     const bubble = document.createElement('div');
                     bubble.classList.add('chat-bubble', msg.type);  // 根据类型（question/answer）应用不同样式
 
                     const textNode = document.createElement('span');
                     textNode.textContent = msg.text;
                     bubble.appendChild(textNode);
-                    parent.appendChild(bubble);
+
+                    // 时间戳
+                    const timeNode = document.createElement('div');
+                    timeNode.classList.add('message-time');
+                    timeNode.textContent = msg.time;
+                    bubble.appendChild(timeNode);
+                    parent.appendChild(bubble)
                     chatContainer.appendChild(parent);
                 });
             }
