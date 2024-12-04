@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天记录展示</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fb;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #file-upload {
+            display: block;
+            margin: 20px auto;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        #sn-select {
+            display: block;
+            margin: 20px auto;
+            padding: 10px;
+            font-size: 16px;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        .chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .chat-bubble {
+            display: inline-block;
+            max-width: 75%;
+            margin: 10px 0;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* 修改 question 的样式使其显示在右边 */
+        .question {
+            background-color: #007bff;
+            color: #fff;
+            text-align: right;
+            border-radius: 20px 20px 0 20px;
+            margin-left: auto;  /* 让它靠右 */
+            float: right
+        }
+
+        /* 修改 answer 的样式使其显示在左边 */
+        .answer {
+            background-color: #e0e0e0;
+            text-align: left;
+            border-radius: 20px 20px 20px 0;
+            margin-right: auto;  /* 让它靠左 */
+        }
+
+        .chat-bubble span {
+            display: block;
+            word-wrap: break-word;
+        }
+
+        #chat-display {
+            padding-top: 20px;
+        }
+
+        /* 简化输入框和按钮样式 */
+        button {
+            font-size: 16px;
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>聊天记录展示</h1>
+
+    <!-- 文件上传 -->
+    <input type="file" id="file-upload" accept="application/json">
+    
+    <!-- SN 选择 -->
+    <select id="sn-select">
+        <option value="">选择一个 SN</option>
+    </select>
+
+    <!-- 聊天记录显示区域 -->
+    <div id="chat-display" class="chat-container"></div>
+
+    <script>
+        let chatData = {};
+
+        // 处理文件上传
+        document.getElementById('file-upload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/json') {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        chatData = JSON.parse(e.target.result);
+                        populateSNSelect();  // 填充 SN 选择框
+                    } catch (err) {
+                        alert("文件格式不正确，请上传有效的 JSON 文件！");
+                    }
+                };
+                reader.readAsText(file);
+            } else {
+                alert("请上传有效的 JSON 文件！");
+            }
+        });
+
+        // 填充 SN 选择框
+        function populateSNSelect() {
+            const snSelect = document.getElementById('sn-select');
+            snSelect.innerHTML = '<option value="">选择一个 SN</option>';  // 清空已有选项
+
+            Object.keys(chatData).forEach(sn => {
+                const option = document.createElement('option');
+                option.value = sn;
+                option.textContent = sn;
+                snSelect.appendChild(option);
+            });
+        }
+
+        // 监听 SN 选择变化
+        document.getElementById('sn-select').addEventListener('change', function(event) {
+            const sn = event.target.value;
+            if (sn) {
+                displayChat(sn);  // 展示聊天记录
+            } else {
+                document.getElementById('chat-display').innerHTML = '';  // 清空显示区域
+            }
+        });
+
+        // 展示聊天记录
+        function displayChat(sn) {
+            const chatContainer = document.getElementById('chat-display');
+            chatContainer.innerHTML = '';  // 清空之前的内容
+
+            const messages = chatData[sn];
+            if (messages) {
+                messages.forEach(msg => {
+                    const parent =  document.createElement('div');
+                    const bubble = document.createElement('div');
+                    bubble.classList.add('chat-bubble', msg.type);  // 根据类型（question/answer）应用不同样式
+
+                    const textNode = document.createElement('span');
+                    textNode.textContent = msg.text;
+                    bubble.appendChild(textNode);
+                    parent.appendChild(bubble);
+                    chatContainer.appendChild(parent);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
